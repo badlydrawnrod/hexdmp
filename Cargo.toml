@@ -1,0 +1,14 @@
+[package]
+name = "hexdmp"
+version = "0.1.0"
+authors = ["Badly Drawn Rod <rod@badlydrawngames.com>"]
+description = """
+hexdmp is a command line utility that dumps the contents of one or more files to stdout in hex.
+"""
+repository = "https://github.com/badlydrawnrod/hexdmp"
+readme = "README.md"
+license = "Unlicense or MIT"
+categories = [ "command-line-utilities" ]
+
+[dependencies]
+clap = "2"
