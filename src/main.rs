@@ -94,7 +94,7 @@ fn hex_dump_line(buffer: &[u8], max_size: usize, uppercase: bool, octal: bool, d
     for b in buffer {
         print!(
             "{}",
-            if *b >= 32 && *b < 128 {
+            if *b >= 32 && *b < 127 {
                 *b as char
             } else {
                 '.'
