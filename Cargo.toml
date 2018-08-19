@@ -1,6 +1,6 @@
 [package]
 name = "hexdmp"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Badly Drawn Rod <rod@badlydrawngames.com>"]
 description = """
 hexdmp is a command line utility that dumps the contents of one or more files to stdout in hex.

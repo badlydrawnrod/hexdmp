@@ -41,6 +41,7 @@ pub fn parse_command_line() -> Result<Config, HexDumpError> {
                 .help("Skips over the first n bytes of input [suffixes: Ki[B], Mi[B], Gi[B], Ti[B] Pi[B], K[B], M[B], G[B], T[B], P[B]]")
                 .short("s")
                 .long("skip")
+                .visible_alias("start")
                 .validator(is_valid_offset)
               .takes_value(true),
         )
@@ -112,36 +113,52 @@ pub fn parse_command_line() -> Result<Config, HexDumpError> {
 fn is_valid_offset(v: String) -> Result<(), String> {
     match from_suffixed_str(&v) {
         Ok(_) => Ok(()),
-        Err(_) => Err(String::from("Expected a positive integer and an optional suffix [suffixes: Ki[B], Mi[B], Gi[B], Ti[B], Pi[B] K[B], M[B], G[B], T[B], P[B]]"))
+        Err(_) => Err(String::from("Expected a positive decimal, octal or hex integer and an optional suffix.\n[suffixes: Ki[B], Mi[B], Gi[B], Ti[B] Pi[B], K[B], M[B], G[B], T[B], P[B]]"))
     }
 }
 
-fn from_suffixed_str(mut s: &str) -> Result<u64, HexDumpError> {
-    if let Some(suffix) = s.find(|c: char| !c.is_digit(10)) {
-        // There's a multiplicative suffix, so determine what it is.
-        let mult = &s[suffix..];
-        s = &s[..suffix];
-
-        let mult: u64 = match mult {
-            // Decimal suffixes.
-            "K" | "KB" => 1000,
-            "M" | "MB" => 1000 * 1000,
-            "G" | "GB" => 1000 * 1000 * 1000,
-            "T" | "TB" => 1000 * 1000 * 1000 * 1000,
-            "P" | "PB" => 1000 * 1000 * 1000 * 1000 * 1000,
-            // Binary suffixes.
-            "Ki" | "KiB" => 1024,
-            "Mi" | "MiB" => 1024 * 1024,
-            "Gi" | "GiB" => 1024 * 1024 * 1024,
-            "Ti" | "TiB" => 1024 * 1024 * 1024 * 1024,
-            "Pi" | "PiB" => 1024 * 1024 * 1024 * 1024 * 1024,
-            _ => return Err(HexDumpError::UnknownSuffix),
-        };
-
-        // Now we have the multiplier, let's use it.
-        Ok(mult * u64::from_str_radix(s, 10)?)
+fn from_suffixed_str(input: &str) -> Result<u64, HexDumpError> {
+    // Determine the number base from the prefix.
+    let (base, input) = if input.starts_with("0x") {
+        // Hexadecimal.
+        (16, &input[2..])
+    } else if input.starts_with("0") {
+        // Octal.
+        (8, &input[1..])
     } else {
-        // There's no multiplicative suffix.
-        Ok(u64::from_str_radix(s, 10)?)
+        // Assume decimal.
+        (10, &input[..])
+    };
+
+    // Determine the multiplier from the suffix.
+    let (mult, input) = if let Some(suffix) = input.find(|c: char| !c.is_digit(base)) {
+        let mult = multiplier_from_suffix(&input[suffix..])?;
+        let input = &input[..suffix];
+        (mult, input)
+    } else {
+        (1, input)
+    };
+
+    Ok(mult * u64::from_str_radix(input, base)?)
+}
+
+fn multiplier_from_suffix(suffix: &str) -> Result<u64, HexDumpError> {
+    match suffix {
+        // Decimal suffixes.
+        "K" | "KB" => Ok(1000),
+        "M" | "MB" => Ok(1000 * 1000),
+        "G" | "GB" => Ok(1000 * 1000 * 1000),
+        "T" | "TB" => Ok(1000 * 1000 * 1000 * 1000),
+        "P" | "PB" => Ok(1000 * 1000 * 1000 * 1000 * 1000),
+
+        // Binary suffixes.
+        "Ki" | "KiB" => Ok(1024),
+        "Mi" | "MiB" => Ok(1024 * 1024),
+        "Gi" | "GiB" => Ok(1024 * 1024 * 1024),
+        "Ti" | "TiB" => Ok(1024 * 1024 * 1024 * 1024),
+        "Pi" | "PiB" => Ok(1024 * 1024 * 1024 * 1024 * 1024),
+
+        // Anything else is an error.
+        _ => Err(HexDumpError::UnknownSuffix),
     }
 }

@@ -12,12 +12,12 @@ $ cargo install hexdmp
 ## Usage
 ```console
 $ hexdmp -h
-hexdmp 0.1.0
+hexdmp 0.1.2
 Badly Drawn Rod <rod@badlydrawngames.com>
 hexdmp is a command line utility that dumps the contents of one or more files to stdout in hex.
 
 USAGE:
-    hexdmp [FLAGS] [OPTIONS] <filenames>...
+    hexdmp.exe [FLAGS] [OPTIONS] <filenames>...
 
 FLAGS:
     -d, --decimal    Displays values in decimal
@@ -31,13 +31,23 @@ OPTIONS:
     -n, --length <length>      Displays only n bytes of input [suffixes: Ki[B], Mi[B], Gi[B], Ti[B] Pi[B], K[B], M[B],
                                G[B], T[B], P[B]]
     -s, --skip <skip>          Skips over the first n bytes of input [suffixes: Ki[B], Mi[B], Gi[B], Ti[B] Pi[B], K[B],
-                               M[B], G[B], T[B], P[B]]
+                               M[B], G[B], T[B], P[B]] [aliases: start]
 
 ARGS:
     <filenames>...
 ```
 
-## Example
+## Examples
+Display 64 bytes of a file, starting from offset 0x100.
+```console
+$ hexdmp --skip 0x100 --length 64 src/main.rs
+Hex dump of src\main.rs
+00000100: 0a 20 20 20 20 20 20 20  20 4f 6b 28 63 6f 6e 66  .        Ok(conf
+00000110: 69 67 29 20 3d 3e 20 66  6f 72 20 66 69 6c 65 6e  ig) => for filen
+00000120: 61 6d 65 20 69 6e 20 26  63 6f 6e 66 69 67 2e 66  ame in &config.f
+00000130: 69 6c 65 6e 61 6d 65 73  20 7b 0d 0a 20 20 20 20  ilenames {..
+```
+
 Display 1KiB of a file in 24-column format, skipping the first 2KiB.
 ```console
 $ hexdmp --columns 24 --skip 2KiB --length 1KiB src/main.rs
