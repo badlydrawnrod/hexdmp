@@ -68,12 +68,11 @@ fn hex_dump_file(filename: &Path, config: &Config) -> io::Result<()> {
 /// Prints a hex dump of a line supplied in a buffer.
 fn hex_dump_line(buffer: &[u8], max_size: usize, uppercase: bool, octal: bool, decimal: bool) {
     // How does the user want us to print each byte?
-    let print_byte = match (uppercase, octal, decimal) {
-        (false, false, false) => print_byte_lower,
-        (true, false, false) => print_byte_upper,
-        (_, true, false) => print_byte_octal,
-        (_, false, true) => print_byte_decimal,
-        _ => print_byte_lower,
+    let print_byte: fn(u8) = match (uppercase, octal, decimal) {
+        (true, false, false) => |n| { print!("{:02X} ", n) },
+        (_, true, false) => |n| { print!("{:03o} ", n) },
+        (_, false, true) => |n| { print!("{:03} ", n) },
+        (false, false, false) | _ => |n| { print!("{:02x} ", n) },
     };
 
     // Print the buffer as numbers in the requested format, inserting an extra space before every 8th number.
@@ -120,18 +119,3 @@ fn print_offset_lower(n: u64) {
     print!("{:08x}:", n)
 }
 
-fn print_byte_decimal(n: u8) {
-    print!("{:03} ", n)
-}
-
-fn print_byte_octal(n: u8) {
-    print!("{:03o} ", n)
-}
-
-fn print_byte_upper(n: u8) {
-    print!("{:02X} ", n)
-}
-
-fn print_byte_lower(n: u8) {
-    print!("{:02x} ", n)
-}
