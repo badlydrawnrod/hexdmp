@@ -27,12 +27,11 @@ fn main() {
 /// Prints a hex dump of the given file. How the hex dump is printed is governed by the configs.
 fn hex_dump_file(filename: &Path, config: &Config) -> io::Result<()> {
     // How does the user want us to print the offset?
-    let print_offset = match (config.uppercase, config.octal, config.decimal) {
-        (false, false, false) => print_offset_lower,
-        (true, false, false) => print_offset_upper,
-        (_, true, false) => print_offset_octal,
-        (_, false, true) => print_offset_decimal,
-        _ => print_offset_lower,
+    let print_offset: fn(u64) = match (config.uppercase, config.octal, config.decimal) {
+        (true, false, false) => |n| { print!("{:08X}:", n) },
+        (_, true, false) => |n| { print!("{:12o}:", n) },
+        (_, false, true) => |n| { print!("{:10}:", n) },
+        (false, false, false) | _ => |n| { print!("{:08x}:", n) },
     };
 
     let mut file = BufReader::new(File::open(filename)?);
@@ -101,21 +100,5 @@ fn hex_dump_line(buffer: &[u8], max_size: usize, uppercase: bool, octal: bool, d
         );
     }
     println!();
-}
-
-fn print_offset_decimal(n: u64) {
-    print!("{:010}:", n)
-}
-
-fn print_offset_octal(n: u64) {
-    print!("{:012o}:", n)
-}
-
-fn print_offset_upper(n: u64) {
-    print!("{:08X}:", n)
-}
-
-fn print_offset_lower(n: u64) {
-    print!("{:08x}:", n)
 }
 
