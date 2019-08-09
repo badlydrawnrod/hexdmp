@@ -14,12 +14,14 @@ use args::Config;
 
 fn main() {
     match args::parse_command_line() {
-        Ok(config) => for filename in &config.filenames {
-            println!("Hex dump of {}", filename);
-            if let Err(e) = hex_dump_file(Path::new(&filename), &config) {
-                eprintln!("Failed to process '{}'.\nReason: {}", filename, e);
+        Ok(config) => {
+            for filename in &config.filenames {
+                println!("Hex dump of {}", filename);
+                if let Err(e) = hex_dump_file(Path::new(&filename), &config) {
+                    eprintln!("Failed to process '{}'.\nReason: {}", filename, e);
+                }
             }
-        },
+        }
         Err(e) => eprintln!("Error parsing command line: {}", e),
     }
 }
@@ -28,10 +30,10 @@ fn main() {
 fn hex_dump_file(filename: &Path, config: &Config) -> io::Result<()> {
     // How does the user want us to print the offset?
     let print_offset: fn(u64) = match (config.uppercase, config.octal, config.decimal) {
-        (true, false, false) => |n| { print!("{:08X}:", n) },
-        (_, true, false) => |n| { print!("{:12o}:", n) },
-        (_, false, true) => |n| { print!("{:10}:", n) },
-        (false, false, false) | _ => |n| { print!("{:08x}:", n) },
+        (true, false, false) => |n| print!("{:08X}:", n),
+        (_, true, false) => |n| print!("{:12o}:", n),
+        (_, false, true) => |n| print!("{:10}:", n),
+        (false, false, false) | _ => |n| print!("{:08x}:", n),
     };
 
     let mut file = BufReader::new(File::open(filename)?);
@@ -68,10 +70,10 @@ fn hex_dump_file(filename: &Path, config: &Config) -> io::Result<()> {
 fn hex_dump_line(buffer: &[u8], max_size: usize, uppercase: bool, octal: bool, decimal: bool) {
     // How does the user want us to print each byte?
     let print_byte: fn(u8) = match (uppercase, octal, decimal) {
-        (true, false, false) => |n| { print!("{:02X} ", n) },
-        (_, true, false) => |n| { print!("{:03o} ", n) },
-        (_, false, true) => |n| { print!("{:03} ", n) },
-        (false, false, false) | _ => |n| { print!("{:02x} ", n) },
+        (true, false, false) => |n| print!("{:02X} ", n),
+        (_, true, false) => |n| print!("{:03o} ", n),
+        (_, false, true) => |n| print!("{:03} ", n),
+        (false, false, false) | _ => |n| print!("{:02x} ", n),
     };
 
     // Print the buffer as numbers in the requested format, inserting an extra space before every 8th number.
@@ -101,4 +103,3 @@ fn hex_dump_line(buffer: &[u8], max_size: usize, uppercase: bool, octal: bool, d
     }
     println!();
 }
-

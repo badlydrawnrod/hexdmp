@@ -96,7 +96,7 @@ pub fn parse_command_line() -> Result<Config, HexDumpError> {
     let filenames = matches
         .values_of("filenames")
         .unwrap()
-        .map(|f| String::from(f))
+        .map(String::from)
         .collect();
 
     Ok(Config {
@@ -122,7 +122,7 @@ fn from_suffixed_str(input: &str) -> Result<u64, HexDumpError> {
     let (base, input) = if input.starts_with("0x") {
         // Hexadecimal.
         (16, &input[2..])
-    } else if input.starts_with("0") {
+    } else if input.starts_with('0') {
         // Octal.
         (8, &input[1..])
     } else {
