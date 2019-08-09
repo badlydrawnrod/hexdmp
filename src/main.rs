@@ -10,7 +10,7 @@ use std::path::Path;
 mod args;
 mod errors;
 
-use args::Config;
+use crate::args::Config;
 
 fn main() {
     match args::parse_command_line() {
@@ -78,7 +78,7 @@ fn hex_dump_line(buffer: &[u8], max_size: usize, uppercase: bool, octal: bool, d
 
     // Print the buffer as numbers in the requested format, inserting an extra space before every 8th number.
     for i in 0..max_size {
-        if (i & 7) == 0 {
+        if i.trailing_zeros() >= 3 {
             print!(" ");
         }
         if i < buffer.len() {

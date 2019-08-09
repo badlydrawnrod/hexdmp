@@ -1,5 +1,5 @@
+use crate::errors::HexDumpError;
 use clap::{App, Arg};
-use errors::HexDumpError;
 use std;
 
 pub struct Config {
