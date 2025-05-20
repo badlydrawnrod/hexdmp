@@ -17,14 +17,7 @@ impl fmt::Display for HexDumpError {
     }
 }
 
-impl error::Error for HexDumpError {
-    fn description(&self) -> &str {
-        match *self {
-            HexDumpError::UnknownSuffix => &"Unknown suffix",
-            HexDumpError::Parse(ref err) => err.description(),
-        }
-    }
-}
+impl error::Error for HexDumpError {}
 
 impl From<ParseIntError> for HexDumpError {
     fn from(err: ParseIntError) -> HexDumpError {
