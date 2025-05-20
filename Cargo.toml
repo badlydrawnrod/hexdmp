@@ -1,3 +1,5 @@
+cargo-features = ["edition2024"]
+
 [package]
 name = "hexdmp"
 version = "0.2.0"
@@ -10,7 +12,7 @@ readme = "README.md"
 license = "Unlicense OR MIT"
 categories = [ "command-line-utilities" ]
 
-edition = "2018"
+edition = "2024"
 
 [dependencies]
 clap = "2"
